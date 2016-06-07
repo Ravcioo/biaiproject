@@ -75,6 +75,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <LibraryPath>.\FANN-2.2.0-Source\bin;$(LibraryPath)</LibraryPath>
+    <ExecutablePath>.\FANN-2.2.0-Source\bin;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -103,8 +105,9 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>.\FANN-2.2.0-Source\src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -148,18 +151,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="FANN-2.2.0-Source\src\floatfann.c" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="E:\BIAI\FANN-2.2.0-Source\src\include\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="D:\ProgramFiles\FANN-2.2.0-Source\bin\fannfloat.lib" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Board.h" />
     <ClInclude Include="Fann.h" />
     <ClInclude Include="Game.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="FANN-2.2.0-Source\bin\fannfloat.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="FANN-2.2.0-Source\bin\fannfloat.dll" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
