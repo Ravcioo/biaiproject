@@ -18,20 +18,64 @@ class Game
 {
 private:
 	FieldValue actualPlayer;
+	FieldValue player1;
 	Board board;
-	bool trainingOn = false;
+	FieldValue winner = Empty;
+	
 
 public:
 	Fann *fann;
 	bool ended = false;
+	bool versusAI = false;
+	bool trainingOn = false;
+	
 
 
 	Game()
 	{
 		board = Board();
 		actualPlayer = X;
+		player1 = X;
 	}
 
+	bool init()
+	{
+		std::string choose;
+		cout << "Play with AI? (y/n)" << endl;
+		std::cin >> choose;
+		if (choose == "y" || choose == "yes" || choose == "")
+		{
+			versusAI = true;
+		}
+		cout << "AI in training mode (y/n)?" << endl;
+		std::cin >> choose;
+		if (choose == "y" || choose == "yes" || choose == "")
+		{
+			trainingOn = true;
+		}
+
+		return versusAI || trainingOn;
+	}
+	void start()
+	{
+		while (!ended)
+		{
+			NextMove();
+		}
+
+		
+		if (winner != Empty)
+		{
+			board.PrintBoard();
+			cout << board.GetValueAsString(winner)<<" won!"<<endl;
+			cout << "Game ended." << endl;
+		}
+		else {
+			cout << "Game stopped" << endl;
+		}
+
+	}
+	
 	void NextMove()
 	{
 		board.PrintBoard();
@@ -42,36 +86,44 @@ public:
 		while (!correctField)
 		{
 			printf("Now is playing %s, choose field...\n", board.GetValueAsString(actualPlayer));
-			printf("x: ");
-			std::cin >> x;
-			printf("\ny: ");
-			std::cin >> y;
-
-			x--;
-			y--;
-
-			if (x == -1)
+			if (player1 == actualPlayer)
 			{
-				board = Board();
-				//ended = true;
-				break;
+				printf("x: ");
+				std::cin >> x;
+				printf("\ny: ");
+				std::cin >> y;
+				//TODO: Verify choose
+				if (x == -1)
+				{
+					//board = Board();
+					ended = true;
+					break;
+				}
+				x--;
+				y--;
+			}
+			
+			if (fann != nullptr && fann->Loaded())
+			{
+				int fannX, fannY;
+				GetFannMove(fannX, fannY);
+				printf("\nFann would play: %d,%d", fannX + 1, fannY + 1);
+				if (versusAI && actualPlayer != player1)
+				{
+					x = fannX;
+					y = fannY;
+				}
 			}
 
 			if (board.IsFieldEmpty(x, y))
 			{
-				if (fann->Loaded())
+				
+				if (!versusAI)
 				{
-					int fannX, fannY;
-					GetFannMove(fannX, fannY);
-					printf("\nFann would play: %d,%d", fannX+1, fannY+1);
+					player1 = this->switchFieldValue(player1);
 				}
-
-				if (trainingOn)
-				{
-					TrainFann(x, y);
-				}
-
 				board.WriteField(x, y, actualPlayer);
+				isEnd();
 				ChangeActualPlayer();
 				correctField = true;
 			}
@@ -197,6 +249,11 @@ public:
 		trainingOn = false;
 	}
 
+	void setFann(Fann *_fann)
+	{
+		this->fann = _fann;
+	}
+
 private:
 
 	void TrainFann()
@@ -213,6 +270,124 @@ private:
 		else
 		{
 			actualPlayer = X;
+		}
+	}
+	FieldValue switchFieldValue(FieldValue field)
+	{
+		if (field == X)
+		{
+			return O;
+		}
+		else if(field == O)
+		{
+			return X;
+		}
+		return field;
+	}
+
+	void isEnd()
+	{
+		FieldValue field = actualPlayer;
+		int win = 5;
+		int count = 0;
+		int actx, acty;
+		for (int i = 0; i < (board.x *board.y); i++)
+		{
+			actx = i / board.x;
+			acty = i % board.y;
+			if (board.fields[acty][actx] != Empty)
+			{
+
+				if (board.x - (actx) >= win)
+				{
+					for (int z = 0; z < win; z++)
+					{
+						if (field == board.fields[(acty + z)][actx])
+						{
+							count++;
+							if (count == win)
+							{
+								ended = true;
+								winner = actualPlayer;
+								return;
+							}
+						}
+						else
+						{
+							count = 0;
+							break;
+						}
+					}
+					
+				}
+				
+				if (board.y - (acty) >= win)
+				{
+					for (int z = 0; z < win; z++)
+					{
+						if (field == board.fields[acty][actx+z])
+						{
+							count++;
+							if (count == win)
+							{
+								ended = true;
+								winner = actualPlayer;
+								return;
+							}
+						}
+						else {
+							count = 0;
+							break;
+						}
+					}
+					
+				}
+				if (board.x - (actx) >= win && board.y - (acty) >= win)
+				{
+					for (int z = 0; z < win; z++)
+					{
+						if (field == board.fields[acty + z][actx + z])
+						{
+							count++;
+							if (count == win)
+							{
+								ended = true;
+								winner = actualPlayer;
+								return;
+							}
+						}
+						else
+						{
+							count = 0;
+							break;
+						}
+					}
+				}
+				if (actx+1 >= win&&board.y - (acty) >= win)
+				{
+					for (int z = 0; z < win; z++)
+					{
+						if (field == board.fields[acty +z ][actx - z])
+						{
+							count++;
+							if (count == win) {
+								ended = true;
+								winner = actualPlayer;
+								return;
+							}
+							
+						}
+						else
+						{
+								count = 0;
+								break;
+						}
+					}
+				}
+
+				
+			}
+			
 		}
 	}
 };

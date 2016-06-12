@@ -15,10 +15,9 @@ using std::noshowpos;
 
 int main(int argc, char **argv)
 {
-	Game game = Game();
+	
 	Fann fann = Fann();
-
-	game.TurnOnTrainingFann(&fann);
+	Game game = Game();
 
 	try
 	{
@@ -27,14 +26,14 @@ int main(int argc, char **argv)
 		fann.CreateNew();
 		fann.TrainWithFile("game_float.data");
 		//fann.Load();
-
-		while (!game.ended)
+		if (game.init())
 		{
-			game.NextMove();
+			game.setFann(&fann);
 		}
-
+		game.start();
 		fann.Save();
 		fann.Destroy();
+		system("pause");
 	}
 	catch (...)
 	{

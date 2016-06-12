@@ -27,6 +27,9 @@ class Board
 public:
 	FieldValue fields[5][5];
 
+	int x = 5;
+	int y = 5;
+
 	Board()
 	{
 		for (int i = 0; i < 25; i++)
