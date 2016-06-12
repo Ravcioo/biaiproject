@@ -114,7 +114,10 @@ public:
 					y = fannY;
 				}
 			}
-
+			if (trainingOn)
+			{
+				TrainFann(x, y);
+			}
 			if (board.IsFieldEmpty(x, y))
 			{
 				
