@@ -146,19 +146,21 @@ public:
 		float* output = (float*)fann->Run((fann_type*)input);
 
 		float max = -999999999999999;
-
-		for (int y = 0; y < 5; y++)
-		{
-			for (int x = 0; x < 5; x++)
+		bool correct_move = false;
+			for (int y = 0; y < 5; y++)
 			{
-				if (output[y * 5 + x] > max)
+				for (int x = 0; x < 5; x++)
 				{
-					result_x = x;
-					result_y = y;
-					max = output[y * 5 + x];
+					if (output[y * 5 + x] > max && board.IsFieldEmpty(x, y))
+					{
+							result_x = x;
+							result_y = y;
+							max = output[y * 5 + x];
+					}
 				}
 			}
-		}
+		
+		
 
 		//DEBUG
 
@@ -305,7 +307,7 @@ private:
 				{
 					for (int z = 0; z < win; z++)
 					{
-						if (field == board.fields[(acty + z)][actx])
+						if (field == board.fields[(acty )][actx + z])
 						{
 							count++;
 							if (count == win)
@@ -328,7 +330,7 @@ private:
 				{
 					for (int z = 0; z < win; z++)
 					{
-						if (field == board.fields[acty][actx+z])
+						if (field == board.fields[acty + z][actx])
 						{
 							count++;
 							if (count == win)
